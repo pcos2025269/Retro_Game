@@ -17,21 +17,21 @@ class Ship {
 
         
         this.image = new Image();
-        this.image.src = "assets/ship.png";
+        this.image.src = "SRC/IMG/ship.png";
         this.image.onload = this.draw;
         this.angle = 0;
     }
 
     draw() {
+
         if (!this.image) return;
-        ctx.save();
-        ctx.translate(this.position.x, this.position.y);
-        ctx.rotate(this.angle);
-        ctx.drawImage(this.image, this.position.x, this.position.y);
-        ctx.restore();
+
+        ctx.drawImage(this.image, this.position.x, this.position.y, this.w, this.h);
     }
 
 }
+
+const ship = new Ship();
 
 const stars = (number = 100) => {
     for (let i = 0; i < number; i++) {
@@ -44,7 +44,7 @@ const stars = (number = 100) => {
 };
 
 const drawBack = () => {
-    ctx.fillStyle = "#323232";
+    ctx.fillStyle = "#000000";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     stars(25);
 }
@@ -52,7 +52,7 @@ const drawBack = () => {
 const update = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBack();
-    drawShip();
+    ship.draw();
     requestAnimationFrame(update);
 }
 
