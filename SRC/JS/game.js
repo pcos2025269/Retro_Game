@@ -242,22 +242,49 @@ function drawHUD() {
         ctx.restore()
     }
 }
- 
+
+let playerName = ""
+let nameSaved = false 
+
+function saveScore(name) {
+    const records = JSON.parse(localStorage.getItem("asteroids_scores") || "[]")
+    records.push({ name, score })
+    records.sort((a, b) => b.score - a.score)
+    records.splice(10)
+    localStorage.setItem("asteroids_scores", JSON.stringify(records))
+}
+
 function drawGameOver() {
     ctx.fillStyle = "rgba(0,0,0,0.6)"
     ctx.fillRect(0, 0, canvas.width, canvas.height)
+    ctx.textAlign = "center"
+
     ctx.fillStyle = "white"
     ctx.font = "bold 64px 'Press Start 2P'"
-    ctx.textAlign = "center"
-    ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 30)
+    ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 60)
+
     ctx.font = "28px 'Press Start 2P'"
-    ctx.fillText(`FINAL SCORE: ${score}`, canvas.width / 2, canvas.height / 2 + 30)
-    ctx.font = "20px 'Press Start 2P'"
-    ctx.fillStyle = "#AAAAFF"
-    ctx.fillText("Presiona R para reiniciar", canvas.width / 2, canvas.height / 2 + 80)
-    ctx.font = "20px 'Press Start 2P'"
+    ctx.fillText(`SCORE: ${score}`, canvas.width / 2, canvas.height / 2 - 10)
+
+    if (!nameSaved) {
+        ctx.font = "16px 'Press Start 2P'"
+        ctx.fillStyle = "#AAAAFF"
+        ctx.fillText("Ingresa tu nombre:", canvas.width / 2, canvas.height / 2 + 40)
+        ctx.fillStyle = "white"
+        ctx.fillText(playerName + "|", canvas.width / 2, canvas.height / 2 + 75)
+        ctx.font = "12px 'Press Start 2P'"
+        ctx.fillStyle = "#888"
+        ctx.fillText("Enter para guardar", canvas.width / 2, canvas.height / 2 + 110)
+    } else {
+        ctx.font = "16px 'Press Start 2P'"
+        ctx.fillStyle = "#00FF88"
+        ctx.fillText("Guardado!", canvas.width / 2, canvas.height / 2 + 50)
+        ctx.fillStyle = "#AAAAFF"
+        ctx.font = "12px 'Press Start 2P'"
+        ctx.fillText("R reiniciar  |  L leaderboard", canvas.width / 2, canvas.height / 2 + 90)
+    }
 }
- 
+
 function resetGame() {
     score = 0; lives = 3; gameOver = false
     bullets.length = 0; asteroids.length = 0
@@ -266,6 +293,7 @@ function resetGame() {
     ship.angle = 0
     ship.invincible = false
     ship.invincibleTimer = 0
+    playerName = ""; nameSaved = false
     spawnAsteroids()
 }
  
@@ -336,7 +364,21 @@ const update = () => {
  
 addEventListener("keydown", e => {
     KEYS[e.key] = true
-    if ((e.key === "r" || e.key === "R") && gameOver) resetGame()
+
+    if (gameOver) {
+        if (!nameSaved) {
+            if (e.key === "Enter" && playerName.trim() !== "") {
+                saveScore(playerName.trim()); nameSaved = true
+            } else if (e.key === "Backspace") {
+                playerName = playerName.slice(0, -1)
+            } else if (e.key.length === 1 && playerName.length < 12) {
+                playerName += e.key
+            }
+        } else {
+            if (e.key === "r" || e.key === "R") resetGame()
+            if (e.key === "l" || e.key === "L") window.location.href = "leaderboard.html"
+        }
+    }
 })
  
 addEventListener("keyup", e => { KEYS[e.key] = false })
