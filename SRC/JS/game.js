@@ -94,12 +94,12 @@ class Ship {
             this.shootCooldown--;
             return;
         }
- 
+
         if (KEYS[" "]) {                        
             
             const tipX = this.cx + Math.cos(this.angle - Math.PI / 2) * (this.h / 2);
             const tipY = this.cy + Math.sin(this.angle - Math.PI / 2) * (this.h / 2);
- 
+
             bullets.push(new Bullet(tipX, tipY, this.angle));
             this.shootCooldown = this.shootDelay;   
         }
@@ -123,13 +123,13 @@ class Ship {
         this.shoot();
         this.updateInvincibility();
     }
- 
+
     draw() {
         if (!this.image.complete) return;
- 
-        // Parpadeo: saltamos el draw en frames pares mientras es invencible
+
+        
         if (this.invincible && Math.floor(this.invincibleTimer / 6) % 2 === 0) return;
- 
+
         ctx.save();
         ctx.translate(this.position.x + this.w / 2, this.position.y + this.h / 2);
         ctx.rotate(this.angle);
@@ -138,6 +138,43 @@ class Ship {
     }
 }
 
+class Bullet{
+    constructor(x, y, angle) {
+        this.x = x;
+        this.y = y;
+        this.angle = angle;
+
+        this.speed = 9;
+        this.vx = Math.cos(angle - Math.PI / 2) * this.speed;
+        this.vy = Math.sin(angle - Math.PI / 2) * this.speed;
+        this.radius = 3;
+        this.alive = true;
+    }
+
+    update() {
+        this.y += this.vy;
+        this.x += this.vx;
+
+        if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+            this.alive = false;
+        }
+    }
+
+    draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = "#ffa600";   
+        ctx.shadowColor = "#585858";
+        ctx.shadowBlur = 8;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+    }
+    
+}
+
+const bullets = [];
 const ship = new Ship();
 
 const stars = (number = 100) => {
@@ -160,7 +197,13 @@ const drawBack = () => {
 const update = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     drawBack()
-    
+    for (let i = bullets.length - 1; i >= 0; i--) {
+        bullets[i].update();
+        bullets[i].draw();
+        if (!bullets[i].alive) {
+            bullets.splice(i, 1);
+        }
+    }
     ship.update()
     requestAnimationFrame(update)
 }
