@@ -4,6 +4,10 @@ canvas .width = innerWidth -4 ;
 canvas.height = innerHeight -4 ;
 const ctx = canvas.getContext("2d");
 
+let score = 0;
+let gameOver = false;
+let lives = 3;
+
 const KEYS = {};
 
 class Ship {
@@ -19,23 +23,40 @@ class Ship {
             x: 0,
             y: 0,
         }
-        this.friction = 0.80;
+        this.friction = 0.95;
         
         this.image = new Image();
         this.image.src = "SRC/IMG/ship.png";
         this.image.onload = this.draw;
         this.angle = 0;
+
+        this.shootCooldown = 0;
+        this.shootDelay = 15;
+
+        this.invincible = false;
+        this.invincibilityTimer= 0;
+        this.duration = 120;
+    }
+
+    getcx() {
+        return this.position.x + this.w / 2
+    }   
+    getcy() {    
+        return this.position.y + this.h / 2
+    }
+    getRadius() {
+        return this.w * 0.38;   
     }
 
     Borders() {
-        //bordes derecha e izquierda
+        
         if (this.position.x < 0) {
             this.position.x = canvas.width-this.w
         } else if (this.position.x  > canvas.width-this.w) {
             this.position.x = 0
             
         }
-        //bordes de arriba y abajo
+        
         if (this.position.y < 0) {
             this.position.y = canvas.height-this.h
         } else if (this.position.y  > canvas.height-this.h) {
@@ -45,37 +66,27 @@ class Ship {
 
     move() {
         if (KEYS["ArrowLeft"]) {
-            this.angle -= 0.08
+            this.angle -= 0.05
         }
-
         if (KEYS["ArrowRight"]) {
-            this.angle += 0.08
+            this.angle += 0.05
         }
-
-        // acelerar hacia delante
+        
         if (KEYS["ArrowUp"]) {
-
             this.velocity.x += Math.cos(this.angle - Math.PI / 2) * 0.4
-
             this.velocity.y += Math.sin(this.angle - Math.PI / 2) * 0.4
         }
-
-        // retroceder
+        
         if (KEYS["ArrowDown"]) {
-
             this.velocity.x -= Math.cos(this.angle - Math.PI / 2) * 0.2
-
             this.velocity.y -= Math.sin(this.angle - Math.PI / 2) * 0.2
         }
-
-        // mover
+        
         this.position.x += this.velocity.x
         this.position.y += this.velocity.y
-
-        // fricción
+    
         this.velocity.x *= this.friction
         this.velocity.y *= this.friction
-
         this.Borders()
     }
 
@@ -86,21 +97,13 @@ class Ship {
 
     draw() {
         if (!this.image.complete) return
-
         if (!this.image.complete) return
-
-        ctx.save()
-
-        // centro de la nave
+        ctx.save()      
         ctx.translate(
             this.position.x + this.w / 2,
             this.position.y + this.h / 2
         )
-
-        // rotar
         ctx.rotate(this.angle)
-
-        // dibujar centrado
         ctx.drawImage(
             this.image,
             -this.w / 2,
@@ -108,7 +111,6 @@ class Ship {
             this.w,
             this.h
         )
-
         ctx.restore()
     }
 }
@@ -123,7 +125,23 @@ const stars = (number = 100) => {
         ctx.fillRect(x, y, 2, 4)
         ctx.fillRect(--x, ++y, 4, 2)
     }
-};
+}
+
+shoot =() => {
+        if (this.shootCooldown > 0) {
+            this.shootCooldown--;
+            return;
+        }
+ 
+        if (KEYS[" "]) {                        
+            
+            const tipX = this.cx + Math.cos(this.angle - Math.PI / 2) * (this.h / 2);
+            const tipY = this.cy + Math.sin(this.angle - Math.PI / 2) * (this.h / 2);
+ 
+            bullets.push(new Bullet(tipX, tipY, this.angle));
+            this.shootCooldown = this.shootDelay;   
+        }
+}
 
 const drawBack = () => {
     ctx.fillStyle = "#000000"
