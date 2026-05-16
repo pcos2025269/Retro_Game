@@ -242,6 +242,13 @@ class Asteroid {
     }
 }
 
+function circlesCollide(ax, ay, ar, bx, by, br) {
+    const dx = ax - bx;
+    const dy = ay - by;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    return dist < ar + br;
+}
+
 
 function spawnAsteroids(count = 5) {
     for (let i = 0; i < count; i++) {
