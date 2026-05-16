@@ -122,8 +122,8 @@ class Bullet {
     draw() {
         ctx.beginPath()
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2)
-        ctx.fillStyle = "#ffa600"
-        ctx.shadowColor = "#585858"
+        ctx.fillStyle = "#ffffff"
+        ctx.shadowColor = "#918c8c"
         ctx.shadowBlur = 8
         ctx.fill()
         ctx.shadowBlur = 0
@@ -187,10 +187,10 @@ class Asteroid {
                     : ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r)
         }
         ctx.closePath()
-        ctx.strokeStyle = "#AAAAFF"
+        ctx.strokeStyle = "#502700"
         ctx.lineWidth = 2
         ctx.stroke()
-        ctx.fillStyle = "rgba(80, 80, 120, 0.3)"
+        ctx.fillStyle = "rgba(151, 111, 88, 0.18)"
         ctx.fill()
         ctx.restore()
     }
@@ -230,7 +230,7 @@ function drawHUD() {
     for (let i = 0; i < lives; i++) {
         ctx.save()
         ctx.translate(canvas.width - 110 + i * 32, 20)
-        ctx.strokeStyle = "#88AAFF"
+        ctx.strokeStyle = "#ffffff"
         ctx.lineWidth = 2
         ctx.beginPath()
         ctx.moveTo(0, -10)
@@ -281,7 +281,7 @@ function drawGameOver() {
         ctx.fillText("Guardado!", canvas.width / 2, canvas.height / 2 + 50)
         ctx.fillStyle = "#eeaaff"
         ctx.font = "12px 'Press Start 2P'"
-        ctx.fillText("R reiniciar  |  L leaderboard", canvas.width / 2, canvas.height / 2 + 90)
+        ctx.fillText("R reiniciar  |  L Score ", canvas.width / 2, canvas.height / 2 + 90)
     }
 }
 

@@ -106,20 +106,16 @@ function drawAsteroid(ast){
 }
 
 function updateAsteroids(){
-
     asteroids.forEach(ast => {
-
         ast.x += ast.speedX
         ast.y += ast.speedY
 
         ast.rotation += ast.rotationSpeed
-
         if(ast.x < -100) ast.x = canvas.width + 100
         if(ast.x > canvas.width + 100) ast.x = -100
 
         if(ast.y < -100) ast.y = canvas.height + 100
         if(ast.y > canvas.height + 100) ast.y = -100
-
         drawAsteroid(ast)
     })
 }
@@ -131,24 +127,17 @@ function drawBackground(){
         canvas.width,
         canvas.height
     )
-
     gradient.addColorStop(0, "#242323")
     gradient.addColorStop(1, "#020201")
-
     ctx.fillStyle = gradient
     ctx.fillRect(0,0,canvas.width,canvas.height)
-
     drawStars()
 }
 
 function animate(){
-
     ctx.clearRect(0,0,canvas.width,canvas.height)
-
     drawBackground()
-
     updateAsteroids()
-
     requestAnimationFrame(animate)
 }
 
@@ -157,10 +146,8 @@ generateAsteroids()
 animate()
 
 addEventListener("resize", () => {
-
     canvas.width = innerWidth
     canvas.height = innerHeight
-
     generateStars()
     generateAsteroids()
 })
