@@ -174,8 +174,93 @@ class Bullet{
     
 }
 
+class Asteroid {
+    constructor(x, y, size = "large") {
+        this.x = x;
+        this.y = y;
+        this.size = size;
+
+        
+        const radii = { large: 70, medium: 40, small: 20 };
+        this.radius = radii[size];
+
+
+        const speedMultiplier = { large: 1, medium: 1.5, small: 2.2 };
+        const baseSpeed = (Math.random() * 1.2 + 0.5) * speedMultiplier[size];
+        const dir = Math.random() * Math.PI * 2;
+        this.vx = Math.cos(dir) * baseSpeed;
+        this.vy = Math.sin(dir) * baseSpeed;
+
+        this.rotation = 0;
+        this.rotationSpeed = (Math.random() - 0.5) * 0.03;
+
+        
+        this.vertices = 10;
+        this.offsets = Array.from({ length: this.vertices }, () =>
+            0.7 + Math.random() * 0.6    
+        );
+
+        this.alive = true;
+    }
+
+    borders() {
+        if (this.x < -this.radius) this.x = canvas.width + this.radius;
+        if (this.x > canvas.width + this.radius) this.x = -this.radius;
+        if (this.y < -this.radius) this.y = canvas.height + this.radius;
+        if (this.y > canvas.height + this.radius) this.y = -this.radius;
+    }
+
+    update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.rotation += this.rotationSpeed;
+        this.borders();
+    }
+
+    draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rotation);
+
+        ctx.beginPath();
+        for (let i = 0; i < this.vertices; i++) {
+            const angle = (i / this.vertices) * Math.PI * 2;
+            const r = this.radius * this.offsets[i];
+            const px = Math.cos(angle) * r;
+            const py = Math.sin(angle) * r;
+            i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+
+        ctx.strokeStyle = "#AAAAFF";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = "rgba(80, 80, 120, 0.3)";
+        ctx.fill();
+        ctx.restore();
+    }
+}
+
+
+function spawnAsteroids(count = 5) {
+    for (let i = 0; i < count; i++) {
+
+        let x, y;
+        const side = Math.floor(Math.random() * 4);
+        if (side === 0) { x = Math.random() * canvas.width; y = -80; }
+        else if (side === 1) { x = canvas.width + 80; y = Math.random() * canvas.height; }
+        else if (side === 2) { x = Math.random() * canvas.width; y = canvas.height + 80; }
+        else { x = -80; y = Math.random() * canvas.height; }
+
+        asteroids.push(new Asteroid(x, y, "large"));
+    }
+}
+
 const bullets = [];
 const ship = new Ship();
+const asteroids = [];
+spawnAsteroids(5);
 
 const stars = (number = 100) => {
     for (let i = 0; i < number; i++) {
