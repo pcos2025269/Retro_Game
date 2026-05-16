@@ -249,6 +249,7 @@ function circlesCollide(ax, ay, ar, bx, by, br) {
     return dist < ar + br;
 }
 
+const POINTS = { large: 20, medium: 50, small: 100 };
 
 function spawnAsteroids(count = 5) {
     for (let i = 0; i < count; i++) {
@@ -268,6 +269,35 @@ const bullets = [];
 const ship = new Ship();
 const asteroids = [];
 spawnAsteroids(5);
+
+function drawHUD() {
+    ctx.fillStyle = "white";
+    ctx.font = "bold 22px 'Courier New', monospace";
+    ctx.textAlign = "left";
+    ctx.fillText(`SCORE: ${score}`, 20, 35);
+ 
+    ctx.fillStyle = "white";
+    ctx.font = "bold 22px 'Courier New', monospace";
+    ctx.fillText("LIVES:", canvas.width - 200, 35);
+ 
+    for (let i = 0; i < lives; i++) {
+        const lx = canvas.width - 110 + i * 32;
+        const ly = 20;
+ 
+        ctx.save();
+        ctx.translate(lx, ly);
+        ctx.strokeStyle = "#88AAFF";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, -10);
+        ctx.lineTo(8, 10);
+        ctx.lineTo(0, 6);
+        ctx.lineTo(-8, 10);
+        ctx.closePath();
+        ctx.stroke();
+        ctx.restore();
+    }
+}
 
 const stars = (number = 100) => {
     for (let i = 0; i < number; i++) {
