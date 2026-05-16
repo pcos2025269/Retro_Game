@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Scoreboard</title>
+
+    <link rel="stylesheet" href="SRC/CSS/Score.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <canvas id="space"></canvas>
+    <main class="scoreboard">
+        <h1>Scoreboard</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>NAME:</th>
+                    <th>SCORE:</th>
+                </tr>
+            </thead>
+            <tbody id="list"></tbody>
+        </table>
+        <a href="index.html">← Volver al juego</a>
+    </main>
+    <script>
+        const records = JSON.parse(localStorage.getItem("asteroids_scores") || "[]")
+        const list = document.getElementById("list")
+        if (records.length === 0) {
+            list.innerHTML = `<tr><td colspan="3" style="color:#888">Sin registros aún</td></tr>`
+        } else {
+            records.forEach((r, i) => {
+                list.innerHTML += `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${r.name}</td>
+                        <td>${r.score}</td>
+                    </tr>
+                `
+            })
+        }
+    </script>
+
+    <script src="SRC/JS/Background.js"></script>
+
+</body>
+</html>

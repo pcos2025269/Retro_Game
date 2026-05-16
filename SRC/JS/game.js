@@ -279,7 +279,7 @@ function drawGameOver() {
         ctx.font = "16px 'Press Start 2P'"
         ctx.fillStyle = "#00FF88"
         ctx.fillText("Guardado!", canvas.width / 2, canvas.height / 2 + 50)
-        ctx.fillStyle = "#AAAAFF"
+        ctx.fillStyle = "#eeaaff"
         ctx.font = "12px 'Press Start 2P'"
         ctx.fillText("R reiniciar  |  L leaderboard", canvas.width / 2, canvas.height / 2 + 90)
     }
@@ -376,7 +376,7 @@ addEventListener("keydown", e => {
             }
         } else {
             if (e.key === "r" || e.key === "R") resetGame()
-            if (e.key === "l" || e.key === "L") window.location.href = "leaderboard.html"
+            if (e.key === "l" || e.key === "L") window.location.href = "Score_Table.html"
         }
     }
 })
