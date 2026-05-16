@@ -89,29 +89,52 @@ class Ship {
         this.velocity.y *= this.friction
         this.Borders()
     }
-
-    update() {
-        this.draw()
-        this.move()
+    shoot()  {
+        if (this.shootCooldown > 0) {
+            this.shootCooldown--;
+            return;
+        }
+ 
+        if (KEYS[" "]) {                        
+            
+            const tipX = this.cx + Math.cos(this.angle - Math.PI / 2) * (this.h / 2);
+            const tipY = this.cy + Math.sin(this.angle - Math.PI / 2) * (this.h / 2);
+ 
+            bullets.push(new Bullet(tipX, tipY, this.angle));
+            this.shootCooldown = this.shootDelay;   
+        }
     }
 
+    makeInvincible() {
+        this.invincible = true;
+        this.invincibilityTimer = this.duration;
+    }
+
+    updateInvincibility() {
+        if (this.invincible) {
+            this.invincibilityTimer--;
+            if (this.invincibleTimer <= 0) this.invincible = false;
+        }
+    }
+
+    update() {
+        this.draw();
+        this.move();
+        this.shoot();
+        this.updateInvincibility();
+    }
+ 
     draw() {
-        if (!this.image.complete) return
-        if (!this.image.complete) return
-        ctx.save()      
-        ctx.translate(
-            this.position.x + this.w / 2,
-            this.position.y + this.h / 2
-        )
-        ctx.rotate(this.angle)
-        ctx.drawImage(
-            this.image,
-            -this.w / 2,
-            -this.h / 2,
-            this.w,
-            this.h
-        )
-        ctx.restore()
+        if (!this.image.complete) return;
+ 
+        // Parpadeo: saltamos el draw en frames pares mientras es invencible
+        if (this.invincible && Math.floor(this.invincibleTimer / 6) % 2 === 0) return;
+ 
+        ctx.save();
+        ctx.translate(this.position.x + this.w / 2, this.position.y + this.h / 2);
+        ctx.rotate(this.angle);
+        ctx.drawImage(this.image, -this.w / 2, -this.h / 2, this.w, this.h);
+        ctx.restore();
     }
 }
 
@@ -127,21 +150,6 @@ const stars = (number = 100) => {
     }
 }
 
-shoot =() => {
-        if (this.shootCooldown > 0) {
-            this.shootCooldown--;
-            return;
-        }
- 
-        if (KEYS[" "]) {                        
-            
-            const tipX = this.cx + Math.cos(this.angle - Math.PI / 2) * (this.h / 2);
-            const tipY = this.cy + Math.sin(this.angle - Math.PI / 2) * (this.h / 2);
- 
-            bullets.push(new Bullet(tipX, tipY, this.angle));
-            this.shootCooldown = this.shootDelay;   
-        }
-}
 
 const drawBack = () => {
     ctx.fillStyle = "#000000"
@@ -152,7 +160,7 @@ const drawBack = () => {
 const update = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     drawBack()
-   
+    
     ship.update()
     requestAnimationFrame(update)
 }
