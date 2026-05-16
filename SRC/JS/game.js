@@ -299,6 +299,40 @@ function drawHUD() {
     }
 }
 
+function drawGameOver() {
+    ctx.fillStyle = "rgba(0,0,0,0.6)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+ 
+    ctx.fillStyle = "white";
+    ctx.font = "bold 64px 'Courier New', monospace";
+    ctx.textAlign = "center";
+    ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 30);
+ 
+    ctx.font = "28px 'Courier New', monospace";
+    ctx.fillText(`FINAL SCORE: ${score}`, canvas.width / 2, canvas.height / 2 + 30);
+ 
+    ctx.font = "20px 'Courier New', monospace";
+    ctx.fillStyle = "#AAAAFF";
+    ctx.fillText("Presiona R para reiniciar", canvas.width / 2, canvas.height / 2 + 80);
+}
+
+function resetGame() {
+    score = 0;
+    lives = 3;
+    gameOver = false;
+ 
+    bullets.length = 0;
+    asteroids.length = 0;
+ 
+    ship.position = { x: canvas.width / 2, y: canvas.height / 2 };
+    ship.velocity = { x: 0, y: 0 };
+    ship.angle = 0;
+    ship.invincible = false;
+    ship.invincibleTimer = 0;
+ 
+    spawnAsteroids(5);
+}
+
 const stars = (number = 100) => {
     for (let i = 0; i < number; i++) {
         let x = Math.floor(Math.random() * canvas.width)
@@ -317,18 +351,93 @@ const drawBack = () => {
 }
 
 const update = () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-    drawBack()
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawBack();
+ 
+    if (gameOver) {
+        drawGameOver();
+        requestAnimationFrame(update);
+        return;
+    }
+ 
+    // — Actualizar y dibujar bullets —
     for (let i = bullets.length - 1; i >= 0; i--) {
         bullets[i].update();
         bullets[i].draw();
+ 
+        // Eliminar proyectiles muertos
         if (!bullets[i].alive) {
             bullets.splice(i, 1);
         }
     }
-    ship.update()
-    requestAnimationFrame(update)
-}
+ 
+    // — Actualizar y dibujar asteroides —
+    for (let i = asteroids.length - 1; i >= 0; i--) {
+        asteroids[i].update();
+        asteroids[i].draw();
+ 
+        // ── COLISIÓN: proyectil ↔ asteroide ──────────────────
+        // Recorremos bullets de atrás hacia adelante para poder
+        // hacer splice sin saltarnos índices.
+        for (let j = bullets.length - 1; j >= 0; j--) {
+            const b = bullets[j];
+            const a = asteroids[i];
+ 
+            if (circlesCollide(b.x, b.y, b.radius, a.x, a.y, a.radius)) {
+                // Sumar puntos
+                score += POINTS[a.size];
+ 
+                // Dividir: large → 2 medium, medium → 2 small, small → nada
+                if (a.size === "large") {
+                    asteroids.push(new Asteroid(a.x, a.y, "medium"));
+                    asteroids.push(new Asteroid(a.x, a.y, "medium"));
+                } else if (a.size === "medium") {
+                    asteroids.push(new Asteroid(a.x, a.y, "small"));
+                    asteroids.push(new Asteroid(a.x, a.y, "small"));
+                }
+ 
+                // Eliminar asteroide y proyectil
+                asteroids.splice(i, 1);
+                bullets.splice(j, 1);
+                break;   // salir del loop de bullets para este asteroide
+            }
+        }
+    }
+ 
+    // ── COLISIÓN: nave ↔ asteroide ────────────────────────────
+    // Solo verificamos si la nave NO está en período de invencibilidad
+    if (!ship.invincible) {
+        for (let i = asteroids.length - 1; i >= 0; i--) {
+            const a = asteroids[i];
+            if (circlesCollide(ship.cx, ship.cy, ship.radius, a.x, a.y, a.radius)) {
+                lives--;
+ 
+                if (lives <= 0) {
+                    gameOver = true;
+                } else {
+                    // Reposicionar nave en el centro y hacerla invencible
+                    ship.position = { x: canvas.width / 2, y: canvas.height / 2 };
+                    ship.velocity = { x: 0, y: 0 };
+                    ship.makeInvincible();
+                }
+                break;
+            }
+        }
+    }
+ 
+    // — Nueva oleada si no quedan asteroides —
+    if (asteroids.length === 0) {
+        spawnAsteroids(5);
+    }
+ 
+    // — Nave —
+    ship.update();
+ 
+    // — HUD encima de todo —
+    drawHUD();
+ 
+    requestAnimationFrame(update);
+};
 
 addEventListener("keydown", e => {
     console.log(e.key)
