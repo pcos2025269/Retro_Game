@@ -9,14 +9,21 @@ let lives = 3;
 let gameOver = false;
  
 const KEYS = {};
- 
+
+const music = new Audio("SRC/AUDIO/music.mp3")
+music.loop = true
+music.volume = 0.2
+const hitSfx = new Audio("SRC/AUDIO/hit.mp3")
+hitSfx.volume = 0.5
+const shootSfx = new Audio("SRC/AUDIO/Shoot.mp3")
+shootSfx.volume = 0.7
 class Ship {
     constructor() {
         this.position = { x: canvas.width / 2, y: canvas.height / 2 }
         this.w = 45;
         this.h = 35;
         this.velocity = { x: 0, y: 0 }
-        this.friction = 0.95;
+        this.friction = 0.93;
  
         this.image = new Image();
         this.image.src = "SRC/IMG/ship.png";
@@ -24,7 +31,7 @@ class Ship {
         this.angle = 0;
  
         this.shootCooldown = 0;
-        this.shootDelay = 15;
+        this.shootDelay = 45;
         this.invincible = false;
         this.invincibleTimer = 0;
         this.duration = 120;
@@ -65,6 +72,8 @@ class Ship {
     shoot() {
         if (this.shootCooldown > 0) { this.shootCooldown--; return }
         if (KEYS[" "]) {
+            shootSfx.currentTime = 0
+            shootSfx.play()
             const tx = this.cx + Math.cos(this.angle - Math.PI / 2) * (this.h / 2)
             const ty = this.cy + Math.sin(this.angle - Math.PI / 2) * (this.h / 2)
             bullets.push(new Bullet(tx, ty, this.angle))
@@ -294,6 +303,8 @@ function resetGame() {
     ship.invincible = false
     ship.invincibleTimer = 0
     playerName = ""; nameSaved = false
+    music.currentTime = 0
+    music.play()
     spawnAsteroids()
 }
  
@@ -317,7 +328,11 @@ const update = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     drawBack()
  
-    if (gameOver) { drawGameOver(); requestAnimationFrame(update); return }
+    if (gameOver) { 
+        music.pause()
+        drawGameOver(); requestAnimationFrame(update); 
+        return 
+    }
  
     for (let i = bullets.length - 1; i >= 0; i--) {
         bullets[i].update()
@@ -333,6 +348,8 @@ const update = () => {
             if (!hits(bullets[j].x, bullets[j].y, bullets[j].radius, asteroids[i].x, asteroids[i].y, asteroids[i].radius)) continue
             score += POINTS[asteroids[i].size]
             if (asteroids[i].size === "large") {
+                hitSfx.currentTime = 0
+                hitSfx.play()
                 asteroids.push(new Asteroid(asteroids[i].x, asteroids[i].y, "medium"))
                 asteroids.push(new Asteroid(asteroids[i].x, asteroids[i].y, "medium"))
             } else if (asteroids[i].size === "medium") {
@@ -348,6 +365,8 @@ const update = () => {
     if (!ship.invincible) {
         for (let i = 0; i < asteroids.length; i++) {
             if (!hits(ship.cx, ship.cy, ship.radius, asteroids[i].x, asteroids[i].y, asteroids[i].radius)) continue
+            hitSfx.currentTime = 0
+            hitSfx.play()
             lives--
             if (lives <= 0) gameOver = true
             else { ship.position = { x: canvas.width / 2, y: canvas.height / 2 }; ship.velocity = { x: 0, y: 0 }; ship.makeInvincible() }
@@ -364,7 +383,7 @@ const update = () => {
  
 addEventListener("keydown", e => {
     KEYS[e.key] = true
-
+    music.play()
     if (gameOver) {
         if (!nameSaved) {
             if (e.key === "Enter" && playerName.trim() !== "") {
